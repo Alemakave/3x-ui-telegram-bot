@@ -1,34 +1,38 @@
 package ru.alemakave.xuitelegrambot.commands.telegram;
 
 import com.pengrad.telegrambot.model.Update;
-import ru.alemakave.xuitelegrambot.actions.ListAction;
+import com.pengrad.telegrambot.request.SendDocument;
 import ru.alemakave.xuitelegrambot.annotations.TGCommandAnnotation;
 import ru.alemakave.xuitelegrambot.client.ClientedTelegramBot;
 import ru.alemakave.xuitelegrambot.client.TelegramClient;
-import ru.alemakave.xuitelegrambot.service.ThreeXConnection;
+import ru.alemakave.xuitelegrambot.service.ThreeXWeb;
+
+import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientRole.ADMIN;
 
 @TGCommandAnnotation
-public class ListConnectionsCommand extends TGCommand {
-    public ThreeXConnection threeXConnection;
+public class CreateBackupCommand extends TGCommand {
+    public ThreeXWeb threeXWeb;
 
-    public ListConnectionsCommand(ClientedTelegramBot telegramBot) {
+    public CreateBackupCommand(ClientedTelegramBot telegramBot) {
         super(telegramBot);
     }
 
     @Override
     public String getCommand() {
-        return "/list";
+        return "/create_backup";
     }
 
     @Override
     public void action(Update update) {
         long chatId = update.message().chat().id();
 
-        ListAction.action(telegramBot, threeXConnection, chatId, -1);
+        SendDocument sendDocument = new SendDocument(chatId, threeXWeb.exportBackup());
+        sendDocument.fileName("x-ui.db");
+        telegramBot.execute(sendDocument);
     }
 
     @Override
     public TelegramClient.TelegramClientRole getAccessLevel() {
-        return TelegramClient.TelegramClientRole.ADMIN;
+        return ADMIN;
     }
 }

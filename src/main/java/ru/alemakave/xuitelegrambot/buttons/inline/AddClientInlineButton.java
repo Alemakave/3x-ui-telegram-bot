@@ -1,6 +1,5 @@
 package ru.alemakave.xuitelegrambot.buttons.inline;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.message.MaybeInaccessibleMessage;
@@ -8,8 +7,12 @@ import com.pengrad.telegrambot.request.SendMessage;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import ru.alemakave.xuitelegrambot.annotations.TGInlineButtonAnnotation;
+import ru.alemakave.xuitelegrambot.client.ClientedTelegramBot;
+import ru.alemakave.xuitelegrambot.client.TelegramClient;
 import ru.alemakave.xuitelegrambot.service.ThreeXClient;
 import ru.alemakave.xuitelegrambot.service.ThreeXConnection;
+
+import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientRole.ADMIN;
 
 @TGInlineButtonAnnotation
 @EqualsAndHashCode(callSuper = true)
@@ -18,7 +21,7 @@ public class AddClientInlineButton extends TGInlineButton {
     public ThreeXConnection threeXConnection;
     public ThreeXClient threeXClient;
 
-    public AddClientInlineButton(TelegramBot telegramBot) {
+    public AddClientInlineButton(ClientedTelegramBot telegramBot) {
         super(telegramBot, "Добавить клиента", "/add_client");
     }
 
@@ -45,5 +48,10 @@ public class AddClientInlineButton extends TGInlineButton {
         backButton.threeXConnection = threeXConnection;
         backButton.addCallbackArg(inboundId);
         backButton.action(update);
+    }
+
+    @Override
+    public TelegramClient.TelegramClientRole getAccessLevel() {
+        return ADMIN;
     }
 }

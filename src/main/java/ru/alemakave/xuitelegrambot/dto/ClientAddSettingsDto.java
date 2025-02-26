@@ -8,6 +8,6 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class ClientAddDtoSettings {
+public class ClientAddSettingsDto {
     private List<Client> clients;
 }

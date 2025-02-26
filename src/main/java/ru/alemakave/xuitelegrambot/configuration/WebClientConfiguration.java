@@ -19,6 +19,8 @@ import static ru.alemakave.xuitelegrambot.utils.WebUtils.*;
 @Configuration
 @PropertySource(value = {"file:./application.yml"}, ignoreResourceNotFound = true)
 public class WebClientConfiguration {
+    @Value("${threex.panel.scheme:http}")
+    private String panelScheme;
     @Getter
     @Value("${threex.panel.ip}")
     private String panelIP;
@@ -51,8 +53,16 @@ public class WebClientConfiguration {
         if (panelPath == null || panelPath.isEmpty()) {
             throw new UnsetException("Unset or invalid panel path!");
         }
+        HttpScheme scheme;
+        if (panelScheme.equalsIgnoreCase("http")) {
+            scheme = HttpScheme.HTTP;
+        } else if (panelScheme.equalsIgnoreCase("https")) {
+            scheme = HttpScheme.HTTPS;
+        } else {
+            throw new UnsetException("Unset or invalid panel scheme!");
+        }
 
-        return new CookedWebClient(WebClient.builder(), HttpScheme.HTTP, panelIP, panelPort, panelPath);
+        return new CookedWebClient(WebClient.builder(), scheme, panelIP, panelPort, panelPath);
     }
 
     @Scope(SCOPE_SINGLETON)

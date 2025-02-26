@@ -1,7 +1,6 @@
 package ru.alemakave.xuitelegrambot.buttons.inline;
 
 import com.google.zxing.WriterException;
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.message.MaybeInaccessibleMessage;
@@ -13,6 +12,8 @@ import com.pengrad.telegrambot.request.SendPhoto;
 import ru.alemakave.qr.ImageType;
 import ru.alemakave.qr.generator.QRGenerator;
 import ru.alemakave.xuitelegrambot.annotations.TGInlineButtonAnnotation;
+import ru.alemakave.xuitelegrambot.client.ClientedTelegramBot;
+import ru.alemakave.xuitelegrambot.client.TelegramClient;
 import ru.alemakave.xuitelegrambot.model.Client;
 import ru.alemakave.xuitelegrambot.model.Connection;
 import ru.alemakave.xuitelegrambot.model.Flow;
@@ -23,11 +24,13 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientRole.USER;
+
 @TGInlineButtonAnnotation
 public class GenerateClientConnectionQRInlineButton extends TGInlineButton {
     public ThreeXConnection threeXConnection;
 
-    public GenerateClientConnectionQRInlineButton(TelegramBot telegramBot) {
+    public GenerateClientConnectionQRInlineButton(ClientedTelegramBot telegramBot) {
         super(telegramBot, "Сгенерировать QR код для клиента ", "/gen_qr");
     }
 
@@ -97,5 +100,10 @@ public class GenerateClientConnectionQRInlineButton extends TGInlineButton {
         } catch (WriterException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public TelegramClient.TelegramClientRole getAccessLevel() {
+        return USER;
     }
 }

@@ -2,13 +2,16 @@ package ru.alemakave.xuitelegrambot.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.transport.ProxyProvider;
 import ru.alemakave.xuitelegrambot.model.validation.MyIp;
 
+@Slf4j
 public class WebUtils {
     public static boolean isInvalidCountry(WebClient.Builder webClientBuilder) {
+        log.debug("Валидация страны расположения бота");
         MyIp myIp = webClientBuilder
                 .baseUrl("https://api.myip.com")
                 .build()
@@ -24,7 +27,9 @@ public class WebUtils {
                 })
                 .block();
 
-        return myIp == null || myIp.getCc().equals("RU");
+        log.debug("Бот расположен в {} регионе", myIp.getCc());
+
+        return myIp.getCc().equals("RU");
     }
 
     public static HttpClient connectProxyToHttpClient(HttpClient httpClient, String proxyAddress, int proxyPort) {

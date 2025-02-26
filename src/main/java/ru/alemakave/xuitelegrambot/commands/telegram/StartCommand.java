@@ -1,13 +1,19 @@
 package ru.alemakave.xuitelegrambot.commands.telegram;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.request.SendMessage;
+import ru.alemakave.xuitelegrambot.actions.StartAction;
 import ru.alemakave.xuitelegrambot.annotations.TGCommandAnnotation;
+import ru.alemakave.xuitelegrambot.client.ClientedTelegramBot;
+import ru.alemakave.xuitelegrambot.client.TelegramClient;
+import ru.alemakave.xuitelegrambot.service.ThreeXClient;
+import ru.alemakave.xuitelegrambot.service.ThreeXConnection;
 
 @TGCommandAnnotation
 public class StartCommand extends TGCommand {
-    public StartCommand(TelegramBot telegramBot) {
+    public ThreeXConnection threeXConnection;
+    public ThreeXClient threeXClient;
+
+    public StartCommand(ClientedTelegramBot telegramBot) {
         super(telegramBot);
     }
 
@@ -20,7 +26,11 @@ public class StartCommand extends TGCommand {
     public void action(Update update) {
         long chatId = update.message().chat().id();
 
-        SendMessage message = new SendMessage(chatId, "Введите код пользователя");
-        telegramBot.execute(message);
+        StartAction.action(telegramBot, chatId, threeXConnection, threeXClient);
+    }
+
+    @Override
+    public TelegramClient.TelegramClientRole getAccessLevel() {
+        return TelegramClient.TelegramClientRole.USER;
     }
 }

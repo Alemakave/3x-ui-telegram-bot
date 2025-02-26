@@ -1,7 +1,9 @@
 package ru.alemakave.xuitelegrambot.service;
 
 import org.springframework.http.HttpMethod;
+import ru.alemakave.xuitelegrambot.dto.ClientWithConnectionDto;
 import ru.alemakave.xuitelegrambot.model.Client;
+import ru.alemakave.xuitelegrambot.model.ClientTraffics;
 
 public interface ThreeXClient {
     /**
@@ -19,7 +21,7 @@ public interface ThreeXClient {
      *
      * @param email Адрес электронной почты клиента, для которого запрашивается информация.
      */
-    void getClientTrafficsByEmail(String email);
+    ClientTraffics getClientTrafficsByEmail(String email);
 
     /**
      * <p>
@@ -36,7 +38,7 @@ public interface ThreeXClient {
      *
      * @param uuid Идентификатор пользователя, для которого запрашивается информация
      */
-    void getClientTrafficsById(int uuid);
+    ClientTraffics[] getClientTrafficsById(String uuid);
 
     /**
      * <p>
@@ -168,4 +170,13 @@ public interface ThreeXClient {
      */
     void delDepletedClients(long inboundId);
 
+    /**
+     * <p>
+     *     <b><i>Описание</i></b>: Метод используется для получения клиента по его UUID.
+     * </p>
+     *
+     * @param uuid Идентификатор клиента.
+     * @return Возвращает пользователя по его UUID.
+     */
+    ClientWithConnectionDto getClientByUUID(String uuid);
 }

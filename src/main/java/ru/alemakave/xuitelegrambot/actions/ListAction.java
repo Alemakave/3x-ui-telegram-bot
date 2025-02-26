@@ -1,19 +1,19 @@
 package ru.alemakave.xuitelegrambot.actions;
 
-import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import ru.alemakave.xuitelegrambot.buttons.inline.AddConnectionInlineButton;
 import ru.alemakave.xuitelegrambot.buttons.inline.GetConnectionInlineButton;
+import ru.alemakave.xuitelegrambot.client.ClientedTelegramBot;
 import ru.alemakave.xuitelegrambot.model.Connection;
 import ru.alemakave.xuitelegrambot.service.ThreeXConnection;
 
 import java.util.List;
 
 public class ListAction {
-    public static void action(TelegramBot telegramBot, ThreeXConnection threeXConnection, long chatId, int messageId) {
+    public static void action(ClientedTelegramBot telegramBot, ThreeXConnection threeXConnection, long chatId, int messageId) {
         StringBuilder message = new StringBuilder("Список подключений:\n\n");
 
         List<Connection> connections = threeXConnection.list();

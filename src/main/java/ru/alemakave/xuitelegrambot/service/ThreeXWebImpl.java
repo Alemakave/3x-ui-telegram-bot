@@ -5,14 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.alemakave.xuitelegrambot.client.CookedWebClient;
 import ru.alemakave.xuitelegrambot.exception.UnauthorizedException;
+import ru.alemakave.xuitelegrambot.exception.UnsupportedMethodException;
 import ru.alemakave.xuitelegrambot.functions.UnauthorizedThrowingFunction;
 import ru.alemakave.xuitelegrambot.model.Certificate;
 import ru.alemakave.xuitelegrambot.model.messages.CertificateGenMessage;
+import ru.alemakave.xuitelegrambot.model.messages.Message;
 
 @Slf4j
 @Service
@@ -25,7 +28,23 @@ public class ThreeXWebImpl implements ThreeXWeb {
 
     @Override
     public void createBackup() {
+        throw new UnsupportedMethodException("Метод не поддерживается!");
+    }
 
+    @Override
+    public byte[] exportBackup() {
+        threeXAuth.login();
+
+        WebClient.ResponseSpec responseSpec = webClient
+                .get("/server/getDb")
+                .retrieve()
+                .onStatus(HttpStatusCode::is3xxRedirection, clientResponse -> Mono.error(new UnauthorizedException(webClient.getCookies())));
+
+        ResponseEntity<byte[]> resp = responseSpec.toEntity(byte[].class)
+                .onErrorResume(new UnauthorizedThrowingFunction<>())
+                .block();
+
+        return resp.getBody();
     }
 
     @Override
@@ -50,7 +69,7 @@ public class ThreeXWebImpl implements ThreeXWeb {
     }
 
     @Override
-    public void importBackup() {
+    public void importBackup(byte[] bytes) {
         threeXAuth.login();
 
 

@@ -52,6 +52,29 @@ public interface ThreeXWeb {
      */
     Certificate getNewCertificate();
 
-    // TODO: Добавить документацию
-    void importBackup();
+    /**
+     * <p>
+     *     <b><i>Метод</i></b>: {@link HttpMethod#POST}
+     * </p>
+     * <p>
+     *     <b><i>Путь</i></b>: {@code /server/importDB}
+     * </p>
+     * <p>
+     *     <b><i>Описание</i></b>: Этот эндпоинт импортирует и устанавливает резервную копию на сервер
+     * </p>
+     */
+    void importBackup(byte[] bytes);
+
+    /**
+     * <p>
+     *     <b><i>Метод</i></b>: {@link HttpMethod#GET}
+     * </p>
+     * <p>
+     *     <b><i>Путь</i></b>: {@code /server/getDb}
+     * </p>
+     * <p>
+     *     <b><i>Описание</i></b>: Этот эндпоинт создает резервную копию
+     * </p>
+     */
+    byte[] exportBackup();
 }

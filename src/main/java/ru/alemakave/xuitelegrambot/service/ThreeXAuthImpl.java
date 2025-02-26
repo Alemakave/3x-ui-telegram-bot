@@ -86,11 +86,13 @@ public class ThreeXAuthImpl implements ThreeXAuth {
 
     @Override
     public boolean isAuthorized() {
-        WebClient.Builder webClientBuilder = WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient));
+        if (webClient.isHttp()) {
+            WebClient.Builder webClientBuilder = WebClient.builder()
+                    .clientConnector(new ReactorClientHttpConnector(httpClient));
 
-        if (WebUtils.isInvalidCountry(webClientBuilder)) {
-            throw new InvalidCountryException();
+            if (WebUtils.isInvalidCountry(webClientBuilder)) {
+                throw new InvalidCountryException();
+            }
         }
 
         if (webClient.getCookies().get("3x-ui") == null) {

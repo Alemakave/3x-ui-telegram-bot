@@ -117,6 +117,10 @@ public class CookedWebClient {
                 .build();
     }
 
+    public boolean isHttp() {
+        return scheme == HttpScheme.HTTP;
+    }
+
     public boolean isHttps() {
         return scheme == HttpScheme.HTTPS;
     }

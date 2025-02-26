@@ -11,17 +11,29 @@ import lombok.ToString;
 public class TelegramClient {
     private final long tgChatId;
     private final TelegramClientRole role;
+    private final long connectionId;
+    private final String clientUuid;
     @Setter
     private TelegramClientMode mode = TelegramClientMode.NONE;
 
-    public TelegramClient(long tgChatId, TelegramClientRole role) {
+    public TelegramClient(long tgChatId, TelegramClientRole role, long connectionId, String clientUuid) {
         this.tgChatId = tgChatId;
         this.role = role;
+        this.connectionId = connectionId;
+        this.clientUuid = clientUuid;
     }
 
     public enum TelegramClientRole {
-        USER,
-        ADMIN
+        ADMIN,
+        USER;
+
+        @Override
+        public String toString() {
+            return switch (this) {
+                case USER -> "User";
+                case ADMIN -> "Admin";
+            };
+        }
     }
 
     public enum TelegramClientMode {
