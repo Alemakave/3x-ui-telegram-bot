@@ -33,6 +33,8 @@ threex:
 telegram:
     bot:
       token: 0000000000:AABBRRc_xyzabcdEfgHigklmNOPqrstu13
+      owner:
+        uuid: 24d6b4c5-22da-4d11-8e6a-86f8351029a0
   ```
 
   <ul>
