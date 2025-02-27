@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.message.MaybeInaccessibleMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import ru.alemakave.xuitelegrambot.actions.GetConnectionAction;
 import ru.alemakave.xuitelegrambot.annotations.TGInlineButtonAnnotation;
 import ru.alemakave.xuitelegrambot.client.ClientedTelegramBot;
 import ru.alemakave.xuitelegrambot.client.TelegramClient;
@@ -44,10 +45,7 @@ public class AddClientInlineButton extends TGInlineButton {
 
         threeXClient.addClient(inboundId);
 
-        GetConnectionInlineButton backButton = new GetConnectionInlineButton(telegramBot);
-        backButton.threeXConnection = threeXConnection;
-        backButton.addCallbackArg(inboundId);
-        backButton.action(update);
+        GetConnectionAction.action(telegramBot, threeXConnection, threeXClient, chatId, inboundId, maybeInaccessibleMessage);
     }
 
     @Override
