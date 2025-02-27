@@ -15,7 +15,6 @@ import ru.alemakave.xuitelegrambot.exception.UnsupportedMethodException;
 import ru.alemakave.xuitelegrambot.functions.UnauthorizedThrowingFunction;
 import ru.alemakave.xuitelegrambot.model.Certificate;
 import ru.alemakave.xuitelegrambot.model.messages.CertificateGenMessage;
-import ru.alemakave.xuitelegrambot.model.messages.Message;
 import ru.alemakave.xuitelegrambot.model.messages.VoidObjMessage;
 
 @Slf4j
