@@ -4,9 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+
 @Data
-@EqualsAndHashCode()
-@ToString
 public class Connection {
     private long id;
     private long up;

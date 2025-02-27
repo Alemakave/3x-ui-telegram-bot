@@ -45,7 +45,6 @@ public class GetConnectionAction {
             }
         }
 
-
         if (telegramBot.getClientByChatId(chatId).getRole() == USER) {
             GetConnectionInlineButton updateButton = new GetConnectionInlineButton(telegramBot);
             updateButton.addCallbackArg(connection.getId());
