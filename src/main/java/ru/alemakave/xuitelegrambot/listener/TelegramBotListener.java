@@ -25,6 +25,7 @@ import ru.alemakave.xuitelegrambot.model.Client;
 import ru.alemakave.xuitelegrambot.model.Connection;
 import ru.alemakave.xuitelegrambot.service.ThreeXClient;
 import ru.alemakave.xuitelegrambot.service.ThreeXConnection;
+import ru.alemakave.xuitelegrambot.service.ThreeXWeb;
 import ru.alemakave.xuitelegrambot.utils.UuidValidator;
 
 import java.lang.reflect.Constructor;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientRole.*;
 import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientMode.*;
+import static ru.alemakave.xuitelegrambot.utils.CommandUtils.getCommand;
 
 @Slf4j
 @Service
@@ -48,6 +50,8 @@ public class TelegramBotListener implements UpdatesListener {
     private ThreeXConnection threeXConnection;
     @Autowired
     private ThreeXClient threeXClient;
+    @Autowired
+    private ThreeXWeb threeXWeb;
     @Autowired
     private TelegramBotConfiguration telegramBotConfiguration;
 
@@ -69,12 +73,18 @@ public class TelegramBotListener implements UpdatesListener {
     private void processMessage(Update update) {
         long chatId = update.message().chat().id();
         String receivedMessage = update.message().text();
+        if (receivedMessage == null && update.message().caption() != null && update.message().document() != null) {
+            receivedMessage = update.message().caption();
+        }
 
         if (receivedMessage != null) {
+            String command = getCommand(receivedMessage);
+
             if (!telegramBot.isAuthorizedClient(chatId)) {
                 if (receivedMessage.startsWith("vless://")) {
                     receivedMessage = receivedMessage.substring("vless://".length(), receivedMessage.indexOf("@"));
                 }
+
                 if (UuidValidator.isValidUUID(receivedMessage)) {
                     TelegramClient.TelegramClientRole role = TelegramClient.TelegramClientRole.USER;
 
@@ -92,12 +102,12 @@ public class TelegramBotListener implements UpdatesListener {
                         telegramBot.execute(message);
                     }
                 } else {
-                    if (receivedMessage.equals("/start") && commands.containsKey("/start")) {
+                    if (command.equals("/start") && commands.containsKey("/start")) {
                         commands.get("/start").action(update);
                         return;
                     }
 
-                    if (commands.containsKey(receivedMessage)) {
+                    if (commands.containsKey(command)) {
                         SendMessage message = new SendMessage(chatId, "Вы не авторизованны! Введите код пользователя или конфигурацию");
                         telegramBot.execute(message);
                     } else {
@@ -112,15 +122,15 @@ public class TelegramBotListener implements UpdatesListener {
                     return;
                 }
 
-                boolean hasInCache = commands.containsKey(receivedMessage.split(" ")[0]);
+                boolean hasInCache = commands.containsKey(command);
                 if (!hasInCache) {
                     SendMessage sendMessage = new SendMessage(chatId, String.format("Команда \"%s\" не распознана", receivedMessage));
                     telegramBot.execute(sendMessage);
                     return;
                 }
 
-                if (commands.get(receivedMessage).canAccess(telegramBot.getClientByChatId(chatId))) {
-                    commands.get(receivedMessage.split(" ")[0]).action(update);
+                if (commands.get(command).canAccess(telegramBot.getClientByChatId(chatId))) {
+                    commands.get(command).action(update);
                 } else {
                     SendMessage message = new SendMessage(chatId, "Недостаточно прав!");
                     telegramBot.execute(message);
@@ -131,7 +141,7 @@ public class TelegramBotListener implements UpdatesListener {
 
     private void processCallbackQuery(Update update) {
         CallbackQuery callbackQuery = update.callbackQuery();
-        String callbackText = callbackQuery.data();
+        String queryCommand = getCommand(callbackQuery.data());
         long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
 
         if (!telegramBot.isAuthorizedClient(chatId)) {
@@ -144,9 +154,9 @@ public class TelegramBotListener implements UpdatesListener {
             return;
         }
 
-        boolean hasInCache = buttons.containsKey(callbackText.split(" ")[0]);
+        boolean hasInCache = buttons.containsKey(queryCommand);
         if (hasInCache) {
-            TGInlineButton button = buttons.get(callbackText.split(" ")[0]);
+            TGInlineButton button = buttons.get(queryCommand);
 
             if (button.canAccess(telegramBot.getClientByChatId(chatId))) {
                 button.action(update);
@@ -158,7 +168,7 @@ public class TelegramBotListener implements UpdatesListener {
                 telegramBot.execute(answer);
             }
         } else {
-            SendMessage sendMessage = new SendMessage(update.callbackQuery().data(), String.format("Callback \"%s\" не найден", callbackText));
+            SendMessage sendMessage = new SendMessage(update.callbackQuery().data(), String.format("Callback \"%s\" не найден", queryCommand));
             telegramBot.execute(sendMessage);
         }
 

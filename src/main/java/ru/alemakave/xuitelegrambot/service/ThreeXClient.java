@@ -49,7 +49,8 @@ public interface ThreeXClient {
      * </p>
      * <p>
      *     <b><i>Описание</i></b>: Этот эндпоинт используется для получения записей IP, связанных с конкретным клиентом,
-     *     по его электронной почте.
+     *     по его электронной почте.<br>
+     *     Работа эндпоинта не известна. При тестировании на 24 записях был получен ответ <i>Message(success=true, msg=, obj=No IP Record)</i>
      * </p>
      *
      * @param email Адрес электронной почты клиента, для которого запрашиваются записи IP.
@@ -65,7 +66,8 @@ public interface ThreeXClient {
      * </p>
      * <p>
      *     <b><i>Описание</i></b>: Этот эндпоинт используется для сброса или очистки записей IP, связанных с конкретным
-     *     клиентом, по его адресу электронной почты ({@code {email}}).
+     *     клиентом, по его адресу электронной почты ({@code {email}}).<br>
+     *     Работа эндпоинта не известна. При тестировании на 24 записях был получен ответ <i>Message(success=true, msg=, obj=No IP Record)</i>
      * </p>
      *
      * @param email Адрес электронной почты клиента, для которого необходимо сбросить записи IP.
@@ -116,7 +118,7 @@ public interface ThreeXClient {
      *     идентифицированного его UUID ({@code {uuid}}), в пределах определенного входящего трафика.
      * </p>
      */
-    void updateClient(String uuid);
+    boolean updateClient(String uuid, Client client);
 
     /**
      * <p>
@@ -134,7 +136,7 @@ public interface ThreeXClient {
      * @param inboundId Идентификатор входящего подключения, к которому принадлежит клиент.
      * @param email Адрес электронной почты клиента, у которого сбрасывается статистика трафика.
      */
-    void resetClientTraffic(long inboundId, String email);
+    boolean resetClientTraffic(long inboundId, String email);
 
     /**
      * <p>
@@ -150,19 +152,19 @@ public interface ThreeXClient {
      *
      * @param inboundId Идентификатор входящего подключения, для которого сбрасывается клиентский трафик.
      */
-    void resetAllClientTraffics(long inboundId);
+    boolean resetAllClientTraffics(long inboundId);
 
     /**
      * <p>
      *     <b><i>Метод</i></b>: {@link HttpMethod#POST}
      * </p>
      * <p>
-     *     <b><i>Путь</i></b>:
+     *     <b><i>Путь</i></b>: {@code /panel/api/inbounds/delDepletedClients/{inboundId}}
      * </p>
      * <p>
-     *     <b><i>Описание</i></b>: Этот эндпоинт используется для удаления всех исчерпанных клиентов, связанных с
-     *     конкретным входящим подключением, по его идентификатору ({@code {inboundId}}). Если {@code inboundId=-1},
-     *     исчерпанные клиенты будут удалены из всех входящих подключений.
+     *     <b><i>Описание</i></b>: Этот эндпоинт используется для удаления всех клиентов с истекшим сроком, связанных с
+     *     конкретным подключением, по его идентификатору ({@code {inboundId}}). Если {@code inboundId=-1},
+     *     клиенты с истекшим сроком будут удалены из всех входящих подключений.
      * </p>
      *
      * @param inboundId Идентификатор входящего подключения, из которого будут удалены исчерпанные клиенты. Если

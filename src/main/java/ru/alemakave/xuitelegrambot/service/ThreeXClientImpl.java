@@ -18,9 +18,7 @@ import ru.alemakave.xuitelegrambot.model.Client;
 import ru.alemakave.xuitelegrambot.model.ClientTraffics;
 import ru.alemakave.xuitelegrambot.model.Connection;
 import ru.alemakave.xuitelegrambot.model.Flow;
-import ru.alemakave.xuitelegrambot.model.messages.AddClientMessage;
-import ru.alemakave.xuitelegrambot.model.messages.ClientTrafficsByIdMessage;
-import ru.alemakave.xuitelegrambot.model.messages.ClientTrafficsMessage;
+import ru.alemakave.xuitelegrambot.model.messages.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -81,12 +79,34 @@ public class ThreeXClientImpl implements ThreeXClient {
 
     @Override
     public void clientIps(String email) {
+        threeXAuth.login();
 
+        WebClient.ResponseSpec responseSpec = webClient
+                .post("/panel/api/inbounds/clientIps/" + email)
+                .retrieve()
+                .onStatus(HttpStatusCode::is3xxRedirection, clientResponse -> Mono.error(new UnauthorizedException(webClient.getCookies())));
+
+        Message message = responseSpec.bodyToMono(Message.class)
+                .onErrorResume(new UnauthorizedThrowingFunction<>())
+                .block();
+
+        log.debug("Client ips (email={}): {}", email, message);
     }
 
     @Override
     public void clearClientIps(String email) {
+        threeXAuth.login();
 
+        WebClient.ResponseSpec responseSpec = webClient
+                .post("/panel/api/inbounds/clearClientIps/" + email)
+                .retrieve()
+                .onStatus(HttpStatusCode::is3xxRedirection, clientResponse -> Mono.error(new UnauthorizedException(webClient.getCookies())));
+
+        Message message = responseSpec.bodyToMono(Message.class)
+                .onErrorResume(new UnauthorizedThrowingFunction<>())
+                .block();
+
+        log.debug("Client ips (email={}): {}", email, message);
     }
 
     @SneakyThrows
@@ -127,42 +147,109 @@ public class ThreeXClientImpl implements ThreeXClient {
 
     @Override
     public void deleteClientByClientId(long inboundId, String clientId) {
+        threeXAuth.login();
 
+        WebClient.ResponseSpec responseSpec = webClient
+                .post(String.format("/panel/api/inbounds/%s/delClient/%s", inboundId, clientId))
+                .retrieve()
+                .onStatus(HttpStatusCode::is3xxRedirection, clientResponse -> Mono.error(new UnauthorizedException(webClient.getCookies())));
+
+        VoidObjMessage deleteClientMessage = responseSpec
+                .bodyToMono(VoidObjMessage.class)
+                .onErrorResume(new UnauthorizedThrowingFunction<>())
+                .block();
+
+        log.debug("Delete client: {}", deleteClientMessage);
+    }
+
+    @SneakyThrows
+    @Override
+    public boolean updateClient(String uuid, Client client) {
+        threeXAuth.login();
+
+        long connectionId = getClientByUUID(uuid).getConnection().getId();
+
+        WebClient.ResponseSpec responseSpec = webClient
+                .post("/panel/api/inbounds/updateClient/" + uuid)
+                .bodyValue(clientMapper.clientToClientUpdateDto(connectionId, client))
+                .retrieve()
+                .onStatus(HttpStatusCode::is3xxRedirection, clientResponse -> Mono.error(new UnauthorizedException(webClient.getCookies())));
+
+        VoidObjMessage updateClientMessage = responseSpec
+                .bodyToMono(VoidObjMessage.class)
+                .onErrorResume(new UnauthorizedThrowingFunction<>())
+                .block();
+
+        log.debug("Update client: {}", updateClientMessage);
+
+        return updateClientMessage.isSuccess() && getClientByUUID(uuid).getClient().equals(client);
     }
 
     @Override
-    public void updateClient(String uuid) {
+    public boolean resetClientTraffic(long inboundId, String email) {
+        threeXAuth.login();
 
+        WebClient.ResponseSpec responseSpec = webClient
+                .post(String.format("/panel/api/inbounds/%s/resetClientTraffic/%s", inboundId, email))
+                .retrieve()
+                .onStatus(HttpStatusCode::is3xxRedirection, clientResponse -> Mono.error(new UnauthorizedException(webClient.getCookies())));
+
+        VoidObjMessage resetClientTrafficMessage = responseSpec
+                .bodyToMono(VoidObjMessage.class)
+                .onErrorResume(new UnauthorizedThrowingFunction<>())
+                .block();
+
+        log.debug("Reset client traffic: {}", resetClientTrafficMessage);
+
+        return resetClientTrafficMessage.isSuccess();
     }
 
     @Override
-    public void resetClientTraffic(long inboundId, String email) {
+    public boolean resetAllClientTraffics(long inboundId) {
+        threeXAuth.login();
 
-    }
+        WebClient.ResponseSpec responseSpec = webClient
+                .post("/panel/api/inbounds/resetAllClientTraffics/" + inboundId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is3xxRedirection, clientResponse -> Mono.error(new UnauthorizedException(webClient.getCookies())));
 
-    @Override
-    public void resetAllClientTraffics(long inboundId) {
+        VoidObjMessage resetAllClientTrafficMessage = responseSpec
+                .bodyToMono(VoidObjMessage.class)
+                .onErrorResume(new UnauthorizedThrowingFunction<>())
+                .block();
 
+        log.debug("Reset all client traffics: {}", resetAllClientTrafficMessage);
+
+        return true;
     }
 
     @Override
     public void delDepletedClients(long inboundId) {
+        threeXAuth.login();
 
+        WebClient.ResponseSpec responseSpec = webClient
+                .post("/panel/api/inbounds/delDepletedClients/" + inboundId)
+                .retrieve()
+                .onStatus(HttpStatusCode::is3xxRedirection, clientResponse -> Mono.error(new UnauthorizedException(webClient.getCookies())));
+
+        VoidObjMessage delDepletedClientsMessage = responseSpec
+                .bodyToMono(VoidObjMessage.class)
+                .onErrorResume(new UnauthorizedThrowingFunction<>())
+                .block();
+
+        log.debug("Del depleted clients: {}", delDepletedClientsMessage);
     }
 
     @Override
     public ClientWithConnectionDto getClientByUUID(String uuid) {
         List<Connection> connections = threeXConnection.list();
-        ClientWithConnectionDto result = new ClientWithConnectionDto();
 
         for (Connection connection : connections) {
             Client[] clients = connection.getSettings().getClients().toArray(Client[]::new);
 
             for (Client client : clients) {
                 if (client.getId().equals(uuid)) {
-                    result.setConnection(connection);
-                    result.setClient(client);
-                    return result;
+                    return new ClientWithConnectionDto(connection, client);
                 }
             }
         }

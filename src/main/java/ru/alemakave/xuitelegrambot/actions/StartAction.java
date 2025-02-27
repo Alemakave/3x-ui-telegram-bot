@@ -15,7 +15,7 @@ public class StartAction {
                 GetConnectionAction.action(telegramBot, threeXConnection, threeXClient, chatId, telegramBot.getClientByChatId(chatId).getConnectionId(), null);
             }
         } else {
-            SendMessage message = new SendMessage(chatId, "Введите код пользователя или конфигурацию");
+            SendMessage message = new SendMessage(chatId, "Введите код пользователя или конфигурацию \n(конфигурация начинается с vless:\\\\...)");
             telegramBot.execute(message);
         }
     }

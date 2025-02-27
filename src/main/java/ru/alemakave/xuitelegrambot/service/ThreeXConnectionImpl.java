@@ -16,9 +16,7 @@ import ru.alemakave.xuitelegrambot.exception.UnauthorizedException;
 import ru.alemakave.xuitelegrambot.functions.UnauthorizedThrowingFunction;
 import ru.alemakave.xuitelegrambot.mapper.ConnectionMapper;
 import ru.alemakave.xuitelegrambot.model.*;
-import ru.alemakave.xuitelegrambot.model.messages.ConnectionMessage;
-import ru.alemakave.xuitelegrambot.model.messages.ConnectionsMessage;
-import ru.alemakave.xuitelegrambot.model.messages.DeleteConnectionMessage;
+import ru.alemakave.xuitelegrambot.model.messages.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,6 +86,8 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
         if (connectionMessage == null) {
             throw new ConnectionFailedException("Connection failed! Connection message is null!");
         }
+
+        log.debug("Connection message: {}", connectionMessage.toString().replace("\r", "").replace("\n", "\\n"));
 
         return connectionMapper.connectionGetUpdateDtoToConnection(connectionMessage.getObj());
     }
@@ -228,6 +228,28 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
                 .onErrorResume(new UnauthorizedThrowingFunction<>())
                 .block();
 
-        log.debug("Update: {}", receivedConnectionMessage);
+        log.debug("Update: {}", receivedConnectionMessage.toString().replace("\r", "").replace("\n", "\\n"));
+    }
+
+    @Override
+    public List<String> onlines() {
+        long timeTestStart = System.currentTimeMillis();
+        threeXAuth.login();
+
+        WebClient.ResponseSpec responseSpec = webClient
+                .post("/panel/api/inbounds/onlines")
+                .retrieve();
+
+        OnlinesMessage onlinesMessage = responseSpec
+                .bodyToMono(OnlinesMessage.class)
+                .block();
+
+        log.debug("Onlines message: {}", onlinesMessage);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Получение пользователей онлайн заняло: {}ms", System.currentTimeMillis() - timeTestStart);
+        }
+
+        return onlinesMessage.getObj();
     }
 }

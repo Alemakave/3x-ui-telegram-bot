@@ -82,4 +82,18 @@ public interface ThreeXConnection {
      * @param inboundId Идентификатор входящего подключения, которое необходимо обновить.
      */
     void update(long inboundId, Connection connection);
+
+
+    /**
+     * <p>
+     *     <b><i>Метод</i></b>: {@link HttpMethod#POST}
+     * </p>
+     * <p>
+     *     <b><i>Путь</i></b>: {@code /panel/api/inbounds/onlines}
+     * </p>
+     * <p>
+     *     <b><i>Описание</i></b>: Этот эндпоинт возвращает клиентов онлайн
+     * </p>
+     */
+    List<String> onlines();
 }

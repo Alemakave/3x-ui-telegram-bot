@@ -35,7 +35,7 @@ public interface ThreeXWeb {
      *     подключений в системе.
      * </p>
      */
-    void resetAllTraffics();
+    boolean resetAllTraffics();
 
     /**
      * <p>
