@@ -1,6 +1,7 @@
 package ru.alemakave.xuitelegrambot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
             throw new ConnectionFailedException("Connection failed! Connections message is null!");
         }
 
-        return connectionsMessage.getObj().stream()
+        List<Connection> result = connectionsMessage.getObj().stream()
                 .map(connectionGetUpdateDTO -> {
                     try {
                         return connectionMapper.connectionGetUpdateDtoToConnection(connectionGetUpdateDTO);
@@ -65,7 +66,17 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
                         throw new RuntimeException(e);
                     }
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());;
+
+        try {
+            log.debug("Список подключений: {}",
+                    new ObjectMapper().writeValueAsString(result)
+            );
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
     }
 
     @SneakyThrows
@@ -87,9 +98,11 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
             throw new ConnectionFailedException("Connection failed! Connection message is null!");
         }
 
-        log.debug("Connection message: {}", connectionMessage.toString().replace("\r", "").replace("\n", "\\n"));
+        Connection result = connectionMapper.connectionGetUpdateDtoToConnection(connectionMessage.getObj());
 
-        return connectionMapper.connectionGetUpdateDtoToConnection(connectionMessage.getObj());
+        log.debug("Подключение: {}", new ObjectMapper().writeValueAsString(result));
+
+        return result;
     }
 
     @Override
@@ -233,7 +246,6 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
 
     @Override
     public List<String> onlines() {
-        long timeTestStart = System.currentTimeMillis();
         threeXAuth.login();
 
         WebClient.ResponseSpec responseSpec = webClient
@@ -245,10 +257,6 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
                 .block();
 
         log.debug("Onlines message: {}", onlinesMessage);
-
-        if (log.isDebugEnabled()) {
-            log.debug("Получение пользователей онлайн заняло: {}ms", System.currentTimeMillis() - timeTestStart);
-        }
 
         return onlinesMessage.getObj();
     }

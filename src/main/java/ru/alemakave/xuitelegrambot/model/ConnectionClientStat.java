@@ -1,14 +1,12 @@
 package ru.alemakave.xuitelegrambot.model;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @EqualsAndHashCode
 @ToString
 @AllArgsConstructor
+@NoArgsConstructor
 public class ConnectionClientStat {
     private long id;
     private long inboundId;
