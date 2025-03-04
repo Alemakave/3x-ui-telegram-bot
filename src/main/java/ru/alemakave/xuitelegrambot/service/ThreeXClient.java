@@ -86,7 +86,7 @@ public interface ThreeXClient {
      *     подключению, по его идентификатору в теле.
      * </p>
      */
-    Client addClient(long inboundId);
+    void addClient(long inboundId);
 
     /**
      * <p>
@@ -104,7 +104,7 @@ public interface ThreeXClient {
      * @param inboundId Идентификатор входящего подключения, из которого будет удален клиент.
      * @param clientId Уникальный идентификатор (UUID) клиента, подлежащего удалению.
      */
-    void deleteClientByClientId(long inboundId, String clientId);
+    boolean deleteClientByClientId(long inboundId, String clientId);
 
     /**
      * <p>

@@ -111,7 +111,7 @@ public class ThreeXClientImpl implements ThreeXClient {
 
     @SneakyThrows
     @Override
-    public Client addClient(long inboundId) {
+    public void addClient(long inboundId) {
         threeXAuth.login();
 
         Client newClient = new Client();
@@ -140,13 +140,10 @@ public class ThreeXClientImpl implements ThreeXClient {
         }
 
         log.debug("Add client: {}", addClientMessage);
-
-        List<Client> clients = threeXConnection.get(inboundId).getSettings().getClients();
-        return clients.get(clients.size() - 1);
     }
 
     @Override
-    public void deleteClientByClientId(long inboundId, String clientId) {
+    public boolean deleteClientByClientId(long inboundId, String clientId) {
         threeXAuth.login();
 
         WebClient.ResponseSpec responseSpec = webClient
@@ -160,6 +157,8 @@ public class ThreeXClientImpl implements ThreeXClient {
                 .block();
 
         log.debug("Delete client: {}", deleteClientMessage);
+
+        return deleteClientMessage.isSuccess();
     }
 
     @SneakyThrows

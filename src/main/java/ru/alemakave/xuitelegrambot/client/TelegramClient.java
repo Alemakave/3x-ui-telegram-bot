@@ -23,9 +23,16 @@ public class TelegramClient {
         this.clientUuid = clientUuid;
     }
 
+    @Getter
     public enum TelegramClientRole {
-        ADMIN,
-        USER;
+        ADMIN(2),
+        USER(1);
+
+        private final int accessLevel;
+
+        TelegramClientRole(int accessLevel) {
+            this.accessLevel = accessLevel;
+        }
 
         @Override
         public String toString() {

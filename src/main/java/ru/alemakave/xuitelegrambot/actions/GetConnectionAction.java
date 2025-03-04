@@ -19,7 +19,6 @@ import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientRole.ADMIN;
 import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientRole.USER;
 
 @Slf4j
@@ -41,7 +40,15 @@ public class GetConnectionAction {
                 generateClientConnectionQR.addCallbackArgs(connection.getId(), client.getId());
                 generateClientConnectionQR.setButtonText("Получить QR код " + client.getEmail());
 
-                keyboardMarkup.addRow(generateClientConnectionQR.getButton());
+                DeleteClientInlineButton deleteClient = new DeleteClientInlineButton(telegramBot);
+                if (deleteClient.canAccess(telegramBot.getClientByChatId(chatId))) {
+                    deleteClient.addCallbackArgs(connection.getId(), client.getId());
+                    deleteClient.setButtonText(deleteClient.getButtonText() + " " + client.getEmail());
+
+                    keyboardMarkup.addRow(generateClientConnectionQR.getButton(), deleteClient.getButton());
+                } else {
+                    keyboardMarkup.addRow(generateClientConnectionQR.getButton());
+                }
             }
         }
 
@@ -52,8 +59,8 @@ public class GetConnectionAction {
             keyboardMarkup.addRow(updateButton.getButton());
         }
 
-        if (telegramBot.getClientByChatId(chatId).getRole() == ADMIN) {
-            AddClientInlineButton addClientButton = new AddClientInlineButton(telegramBot);
+        AddClientInlineButton addClientButton = new AddClientInlineButton(telegramBot);
+        if (addClientButton.canAccess(telegramBot.getClientByChatId(chatId))) {
             addClientButton.addCallbackArg(connection.getId());
             keyboardMarkup.addRow(addClientButton.getButton());
 
