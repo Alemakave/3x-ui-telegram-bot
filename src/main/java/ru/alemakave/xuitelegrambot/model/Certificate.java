@@ -1,8 +1,11 @@
 package ru.alemakave.xuitelegrambot.model;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class Certificate {
     private String privateKey;
     private String publicKey;

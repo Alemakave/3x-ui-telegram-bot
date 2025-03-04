@@ -1,12 +1,10 @@
 package ru.alemakave.xuitelegrambot.model;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+
+import java.util.List;
 
 @Data
-@EqualsAndHashCode()
-@ToString
 public class Connection {
     private long id;
     private long up;
@@ -15,7 +13,7 @@ public class Connection {
     private String remark;
     private boolean enable;
     private long expiryTime;
-    private Object clientStats;
+    private List<ConnectionClientStat> clientStats;
     private String listen;
     private int port;
     private String protocol;

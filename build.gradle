@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'ru.alemakave.xuitelegrambot'
-version = '0.1.1-ALPHA'
+version = '0.1.2-ALPHA'
 
 java {
 	toolchain {
@@ -29,6 +29,7 @@ dependencies {
 	implementation group: 'com.google.zxing', name: 'core', version: '3.5.1'
 	implementation 'com.github.pengrad:java-telegram-bot-api:8.1.0'
 	implementation 'org.reflections:reflections:0.9.11'
+	implementation group: 'uk.org.lidalia', name: 'sysout-over-slf4j', version: '1.0.2'
 
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.32'

@@ -19,7 +19,6 @@ import java.time.ZonedDateTime;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientRole.ADMIN;
 import static ru.alemakave.xuitelegrambot.client.TelegramClient.TelegramClientRole.USER;
 
 @Slf4j
@@ -41,10 +40,17 @@ public class GetConnectionAction {
                 generateClientConnectionQR.addCallbackArgs(connection.getId(), client.getId());
                 generateClientConnectionQR.setButtonText("Получить QR код " + client.getEmail());
 
-                keyboardMarkup.addRow(generateClientConnectionQR.getButton());
+                DeleteClientInlineButton deleteClient = new DeleteClientInlineButton(telegramBot);
+                if (deleteClient.canAccess(telegramBot.getClientByChatId(chatId))) {
+                    deleteClient.addCallbackArgs(connection.getId(), client.getId());
+                    deleteClient.setButtonText(deleteClient.getButtonText() + " " + client.getEmail());
+
+                    keyboardMarkup.addRow(generateClientConnectionQR.getButton(), deleteClient.getButton());
+                } else {
+                    keyboardMarkup.addRow(generateClientConnectionQR.getButton());
+                }
             }
         }
-
 
         if (telegramBot.getClientByChatId(chatId).getRole() == USER) {
             GetConnectionInlineButton updateButton = new GetConnectionInlineButton(telegramBot);
@@ -53,8 +59,8 @@ public class GetConnectionAction {
             keyboardMarkup.addRow(updateButton.getButton());
         }
 
-        if (telegramBot.getClientByChatId(chatId).getRole() == ADMIN) {
-            AddClientInlineButton addClientButton = new AddClientInlineButton(telegramBot);
+        AddClientInlineButton addClientButton = new AddClientInlineButton(telegramBot);
+        if (addClientButton.canAccess(telegramBot.getClientByChatId(chatId))) {
             addClientButton.addCallbackArg(connection.getId());
             keyboardMarkup.addRow(addClientButton.getButton());
 
@@ -67,7 +73,7 @@ public class GetConnectionAction {
             keyboardMarkup.addRow(backButton.getButton());
         }
 
-        String info = generateMinimizedConnectionInfo(connection, threeXClient);
+        String info = generateMinimizedConnectionInfo(connection, threeXClient, threeXConnection);
 
         if (maybeInaccessibleMessage == null) {
             SendMessage message = new SendMessage(chatId, info);
@@ -159,7 +165,8 @@ public class GetConnectionAction {
         return msg.toString();
     }
 
-    private static String generateMinimizedConnectionInfo(Connection connection, ThreeXClient threeXClient) {
+    private static String generateMinimizedConnectionInfo(Connection connection, ThreeXClient threeXClient, ThreeXConnection threeXConnection) {
+        List<String> emailsOnline = threeXConnection.onlines();
         StringBuilder msg = new StringBuilder();
         msg.append(connection.getRemark()).append("\n");
         msg.append("\uD83D\uDCA1 Активен: ").append(connection.isEnable() ? " Да✅" : " Нет❌").append("\n");
@@ -176,6 +183,7 @@ public class GetConnectionAction {
         msg.append("\uD83D\uDC65 Клиенты:").append("\n");
         for (Client client : connection.getSettings().getClients()) {
             msg.append("   \uD83D\uDCE7 Email: ").append(client.getEmail()).append("\n");
+            msg.append("   \uD83C\uDF10 Статус: ").append(emailsOnline.contains(client.getEmail()) ? "Онлайн \uD83D\uDFE2" : "Оффлайн \uD83D\uDD34").append("\n");
             ClientTraffics traffics = threeXClient.getClientTrafficsByEmail(client.getEmail());
             msg.append("   \uD83D\uDD3C Исходящий трафик: ↑").append(FileUtils.byteToDisplaySize(traffics.getUp())).append("\n");
             msg.append("   \uD83D\uDD3D Входящий трафик: ↓").append(FileUtils.byteToDisplaySize(traffics.getDown())).append("\n\n");
@@ -185,6 +193,7 @@ public class GetConnectionAction {
             msg.append("\uD83D\uDD04 Обновлено: ").append(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(GregorianCalendar.from(ZonedDateTime.now()).getTime()));
         } catch (IllegalArgumentException e) {
             log.error("Ошибка вывода даты и времени обновления: " + e.getMessage());
+            msg.append("\uD83D\uDD04 Обновлено: ОШИБКА");
         }
 
         return msg.toString();

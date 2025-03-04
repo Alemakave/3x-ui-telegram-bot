@@ -17,4 +17,8 @@ public abstract class ClientMapper {
     @Mapping(target = "id", expression = "java(connectionId)")
     @Mapping(target = "settings", expression = "java(new ObjectMapper().writeValueAsString(new ClientAddSettingsDto(List.of(client))))")
     public abstract ClientAddDto clientToClientAddDto(long connectionId, Client client) throws JsonProcessingException;
+
+    @Mapping(target = "id", expression = "java(connectionId)")
+    @Mapping(target = "settings", expression = "java(new ObjectMapper().writeValueAsString(new ClientUpdateSettingsDto(List.of(client))))")
+    public abstract ClientUpdateDto clientToClientUpdateDto(long connectionId, Client client) throws JsonProcessingException;
 }

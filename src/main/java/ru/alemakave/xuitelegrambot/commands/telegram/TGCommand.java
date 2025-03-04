@@ -12,7 +12,7 @@ public abstract class TGCommand {
     }
 
     public boolean canAccess(TelegramClient telegramClient) {
-        return this.getAccessLevel().compareTo(telegramClient.getRole()) >= 0;
+        return this.getAccessLevel().getAccessLevel() <= telegramClient.getRole().getAccessLevel();
     }
 
     public abstract String getCommand();

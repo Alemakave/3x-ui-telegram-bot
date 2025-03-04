@@ -1,12 +1,11 @@
 package ru.alemakave.xuitelegrambot.dto;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import ru.alemakave.xuitelegrambot.model.ConnectionClientStat;
+
+import java.util.List;
 
 @Data
-@EqualsAndHashCode
-@ToString
 public class ConnectionDTO {
     private long id;
     private long up;
@@ -15,7 +14,7 @@ public class ConnectionDTO {
     private String remark;
     private boolean enable;
     private long expiryTime;
-    private Object clientStats;
+    private List<ConnectionClientStat> clientStats;
     private String listen;
     private int port;
     private String protocol;

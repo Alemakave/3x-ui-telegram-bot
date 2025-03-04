@@ -1,6 +1,7 @@
 package ru.alemakave.xuitelegrambot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,7 @@ import ru.alemakave.xuitelegrambot.exception.UnauthorizedException;
 import ru.alemakave.xuitelegrambot.functions.UnauthorizedThrowingFunction;
 import ru.alemakave.xuitelegrambot.mapper.ConnectionMapper;
 import ru.alemakave.xuitelegrambot.model.*;
-import ru.alemakave.xuitelegrambot.model.messages.ConnectionMessage;
-import ru.alemakave.xuitelegrambot.model.messages.ConnectionsMessage;
-import ru.alemakave.xuitelegrambot.model.messages.DeleteConnectionMessage;
+import ru.alemakave.xuitelegrambot.model.messages.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +57,7 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
             throw new ConnectionFailedException("Connection failed! Connections message is null!");
         }
 
-        return connectionsMessage.getObj().stream()
+        List<Connection> result = connectionsMessage.getObj().stream()
                 .map(connectionGetUpdateDTO -> {
                     try {
                         return connectionMapper.connectionGetUpdateDtoToConnection(connectionGetUpdateDTO);
@@ -67,7 +66,17 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
                         throw new RuntimeException(e);
                     }
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());;
+
+        try {
+            log.debug("Список подключений: {}",
+                    new ObjectMapper().writeValueAsString(result)
+            );
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
     }
 
     @SneakyThrows
@@ -89,7 +98,11 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
             throw new ConnectionFailedException("Connection failed! Connection message is null!");
         }
 
-        return connectionMapper.connectionGetUpdateDtoToConnection(connectionMessage.getObj());
+        Connection result = connectionMapper.connectionGetUpdateDtoToConnection(connectionMessage.getObj());
+
+        log.debug("Подключение: {}", new ObjectMapper().writeValueAsString(result));
+
+        return result;
     }
 
     @Override
@@ -228,6 +241,23 @@ public class ThreeXConnectionImpl implements ThreeXConnection {
                 .onErrorResume(new UnauthorizedThrowingFunction<>())
                 .block();
 
-        log.debug("Update: {}", receivedConnectionMessage);
+        log.debug("Update: {}", receivedConnectionMessage.toString().replace("\r", "").replace("\n", "\\n"));
+    }
+
+    @Override
+    public List<String> onlines() {
+        threeXAuth.login();
+
+        WebClient.ResponseSpec responseSpec = webClient
+                .post("/panel/api/inbounds/onlines")
+                .retrieve();
+
+        OnlinesMessage onlinesMessage = responseSpec
+                .bodyToMono(OnlinesMessage.class)
+                .block();
+
+        log.debug("Onlines message: {}", onlinesMessage);
+
+        return onlinesMessage.getObj();
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
+import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 
 @SpringBootApplication
 @EnableAsync
@@ -15,5 +16,9 @@ public class Application {
 		application.setWebApplicationType(WebApplicationType.NONE);
 		application.run(args);
 		log.info("Started 3x-ui Telegram Bot v" + BuildInfo.BUILD_VERSION);
+    }
+
+	public Application() {
+		SysOutOverSLF4J.sendSystemOutAndErrToSLF4J();
 	}
 }
