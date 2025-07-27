@@ -23,8 +23,13 @@ public class TelegramClient {
         this.clientUuid = clientUuid;
     }
 
+    public boolean canAccess(TelegramClientRole checkedRole) {
+        return role.getAccessLevel() >= checkedRole.getAccessLevel();
+    }
+
     @Getter
     public enum TelegramClientRole {
+        OWNER(3),
         ADMIN(2),
         USER(1);
 
@@ -37,6 +42,7 @@ public class TelegramClient {
         @Override
         public String toString() {
             return switch (this) {
+                case OWNER -> "Owner";
                 case USER -> "User";
                 case ADMIN -> "Admin";
             };

@@ -88,8 +88,8 @@ public class TelegramBotListener implements UpdatesListener {
                 if (UuidValidator.isValidUUID(receivedMessage)) {
                     TelegramClient.TelegramClientRole role = TelegramClient.TelegramClientRole.USER;
 
-                    if (telegramBotConfiguration.hasAdminUUID() && receivedMessage.equals(telegramBotConfiguration.getAdminUUID())) {
-                        role = TelegramClient.TelegramClientRole.ADMIN;
+                    if (telegramBotConfiguration.hasOwnerUUID() && receivedMessage.equals(telegramBotConfiguration.getOwnerUUID())) {
+                        role = OWNER;
                     }
 
                     if (authProcessMessage(chatId, role, receivedMessage)) {
@@ -117,7 +117,7 @@ public class TelegramBotListener implements UpdatesListener {
                 }
             } else {
                 if (telegramBot.getClientByChatId(chatId).getMode() == ENTER_CONNECTION_NAME
-                        && telegramBot.getClientByChatId(chatId).getRole() == ADMIN) {
+                        && telegramBot.getClientByChatId(chatId).canAccess(buttons.get("/add_client").getAccessLevel())) {
                     createConnectionProcessMessage(chatId, receivedMessage);
                     return;
                 }

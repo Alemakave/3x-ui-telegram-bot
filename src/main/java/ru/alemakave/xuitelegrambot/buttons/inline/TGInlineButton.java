@@ -50,8 +50,12 @@ public abstract class TGInlineButton {
         return getArguments(receivedMessage);
     }
 
+    public boolean canAccess(TelegramClient.TelegramClientRole role) {
+        return role.getAccessLevel() >= this.getAccessLevel().getAccessLevel();
+    }
+
     public boolean canAccess(TelegramClient telegramClient) {
-        return this.getAccessLevel().getAccessLevel() <= telegramClient.getRole().getAccessLevel();
+        return canAccess(telegramClient.getRole());
     }
 
     public abstract void action(Update update);

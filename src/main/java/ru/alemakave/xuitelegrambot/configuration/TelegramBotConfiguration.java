@@ -25,7 +25,7 @@ public class TelegramBotConfiguration {
     private String token;
     @Getter
     @Value("${telegram.bot.owner.uuid:}")
-    private String adminUUID;
+    private String ownerUUID;
 
     @Autowired
     private ThreeXConnection threeXConnection;
@@ -65,16 +65,14 @@ public class TelegramBotConfiguration {
                     return;
                 }
 
-                if (tgIdAndRole.startsWith("Admin:")) {
-                    long chatId = Long.parseLong(tgIdAndRole.substring("Admin:".length()));
+                for (TelegramClient.TelegramClientRole role : TelegramClient.TelegramClientRole.values()) {
+                    if (tgIdAndRole.startsWith(role.toString())) {
+                        long chatId = Long.parseLong(tgIdAndRole.substring(role.toString().length() + 1));
 
-                    TelegramClient telegramClient = new TelegramClient(chatId, TelegramClient.TelegramClientRole.ADMIN, connection.getId(), client.getId());
-                    telegramClients.add(telegramClient);
-                } else if (tgIdAndRole.startsWith("User:")) {
-                    long chatId = Long.parseLong(tgIdAndRole.substring("User:".length()));
-
-                    TelegramClient telegramClient = new TelegramClient(chatId, TelegramClient.TelegramClientRole.USER, connection.getId(), client.getId());
-                    telegramClients.add(telegramClient);
+                        TelegramClient telegramClient = new TelegramClient(chatId, role, connection.getId(), client.getId());
+                        telegramClients.add(telegramClient);
+                        return;
+                    }
                 }
             });
         });
@@ -82,7 +80,7 @@ public class TelegramBotConfiguration {
         return telegramClients;
     }
 
-    public boolean hasAdminUUID() {
-        return adminUUID != null && !adminUUID.isEmpty();
+    public boolean hasOwnerUUID() {
+        return ownerUUID != null && !ownerUUID.isEmpty();
     }
 }
